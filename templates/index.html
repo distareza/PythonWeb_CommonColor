@@ -1,0 +1,134 @@
+{% extends 'base.html'  %}
+{% block header %}
+<script>
+
+    $(document).ready(function() {
+        $("#errorMessage").hide();
+        $(".figure").hide();
+
+        $("#btnUploadImage").click(function() {
+            $("#divDialog").modal("show");
+        });
+
+        $("#btnClose").click(function() {
+            $("#divDialog").modal("hide");
+        });
+
+        $("#btnUpload").click(function() {
+            $("#errorMessage").hide();
+            $(".figure").hide();
+            var form = $("#upload-image-form");
+
+            $(form).find(":input").each(function() {
+                $(this).removeClass("is-valid is-invalid");
+            });
+
+            if (form[0].checkValidity() === false){
+                $(form).find(":input").each(function() {
+                    if ($(this)[0].checkValidity() === false) $(this).addClass("is-invalid");
+                });
+
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            var formData = new FormData(form[0]);
+
+            $.ajax({
+                type: 'POST',
+                url : '{{url_for("upload")}}',
+                async: true,
+                data: formData,
+                cache: false,
+                timeout: 60000,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    console.log("success upload file");
+                    $("#divDialog").modal("hide");
+                    $("#uploadedImage").attr("src", "{{url_for('showImage')}}");
+                    $(".figure").show();
+                    showImageDetailInfo();
+                },
+                error: function (error) {
+                    $("#errorMessage").show();
+                    $("#errorMessage").text("Error " + error.status + " : " + error.statusText);
+                }
+            });
+        });
+    });
+
+    function showImageDetailInfo() {
+        $.ajax({
+            type: 'POST',
+            url: '{{url_for("showDetail")}}',
+            success: function (data) {
+                console.log("success get detail file");
+                $("#imageInfo").empty();
+                if (!data || !data.group_color) {
+                    return;
+                }
+                var listColor = $("<UL>");
+                $(data.group_color).each(function( index, item ) {
+                    var span_color_text = $("<SPAN>").text("Color : " + item[0]);
+                    var span_color_count = $("<SPAN>").text(" : " + item[2] + "%");
+                    $(listColor).append( $("<LI>").append(span_color_text).append(span_color_count) );
+                });
+                $("#imageInfo").append(listColor);
+            },
+            error: function (error) {
+                console.error(error.statusText);
+                //$("#errorMessage").show();
+                //$("#errorMessage").text("Error " + error.status + " : " + error.statusText);
+            }
+
+        });
+    }
+
+</script>
+{% endblock %}
+{% block content %}
+
+    <div id="divDialog" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false"  tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Upload Image</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="upload-image-form" class="form-inline" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="upload-file" class="col-form-label">Image Upload</label>
+                    <input type="file" class="form-control" id="upload-file" name="upload-file" required>
+                    <div class="invalid-feedback">Please upload an image</div>
+                </div>
+            </form>
+              <div class="mb-3"><span class="alert alert-danger" id="errorMessage">test</span></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btnClose" class="btn btn-secondary">Close</button>
+              <button type="button" id="btnUpload" class="btn btn-primary">Upload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary" id="btnUploadImage"><i class="fa-regular fa-image"></i> Upload Images </button>
+    <br/>
+
+    <div class="container px-4">
+      <div class="row gx-5">
+        <div class="col">
+         <div class="p-3 border bg-light">
+            <figure class="figure">
+                <img id="uploadedImage" style="max-height: 300px; max-width: 300px" class="figure-img img-fluid rounded" />
+                <figcaption class="figure-caption">A caption for the above image.</figcaption>
+            </figure>
+             <div id="imageInfo"></div>
+         </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
