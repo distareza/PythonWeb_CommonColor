@@ -7,6 +7,7 @@
         $(".figure").hide();
 
         $("#btnUploadImage").click(function() {
+            $("#upload-file").val('');
             $("#divDialog").modal("show");
         });
 
@@ -69,19 +70,25 @@
                 if (!data || !data.group_color) {
                     return;
                 }
-                var listColor = $("<UL>").css( {"list-style-type": "none" } );
+                console.log(data);
+
+                var listColor = $("<table>").addClass("table");
+                $(listColor).append( $("<THEAD>").append(
+                    $("<TR>").append( $("<TH>").attr("scope","col").text("Color") )
+                             .append( $("<TH>").attr("scope","col").text("Color Code") )
+                             .append( $("<TH>").attr("scope","col").text("Percentage") )
+                ));
+                var tbody = $("<TBODY>");
+                $(listColor).append( tbody );
                 $(data.group_color).each(function( index, item ) {
-                    var color_pallet = $("<img>").addClass("col").css({ "width":"20px" }, { "height" : "10px" }).attr("src", "color/" + item[0] );
-                    var span_color_text = $("<SPAN>").addClass("col").text("Color : " + item[0]);
-                    var span_color_count = $("<SPAN>").addClass("col").text(item[2] + "%");
-                    $(listColor).append( $("<LI>").append(
-                        $("<div>").addClass("container").append(
-                            $("<div>").addClass("row")
-                                .append(color_pallet)
-                                .append(span_color_text)
-                                .append(span_color_count)
-                        )
-                    ));
+                    var color_pallet = $("<img>").addClass("figure-img img-fluid rounded").css({ "width":"60px" }, { "height" : "20px" }).attr("src", "color/" + item[0] );
+                    var span_color_code = $("<SPAN>").text(item[1]);
+                    var span_color_percentage = $("<SPAN>").text(item[2] + " %");
+                    $(tbody).append(
+                        $("<TR>").append( $("<TD>").append(color_pallet) )
+                                 .append( $("<TD>").append(span_color_code) )
+                                 .append( $("<TD>").append(span_color_percentage) )
+                    );
                 });
                 $("#imageInfo").append(listColor);
             },
@@ -123,8 +130,13 @@
       </div>
     </div>
 
-    <button type="button" class="btn btn-primary" id="btnUploadImage"><i class="fa-regular fa-image"></i> Upload Images </button>
-    <br/>
+    <div class="container px-4" >
+        <div class="row gx-5">
+            <div class="col p-3">
+                <button type="button" class="btn btn-primary" id="btnUploadImage"><i class="fa-regular fa-image"></i> Upload Images </button>
+            </div>
+        </div>
+    </div>
 
     <div class="container px-4">
       <div class="row gx-5">
@@ -132,15 +144,14 @@
          <div class="p-3 border bg-light">
              <div class="container">
                  <div class="row">
-                     <div class="col">
-                        <figure class="figure align-middle">
+                     <div class="col text-center">
+                        <figure class="figure ">
                             <img id="uploadedImage" style="max-height: 300px; max-width: 300px" class="figure-img img-fluid rounded" />
                             <figcaption class="figure-caption">A caption for the above image.</figcaption>
                         </figure>
                      </div>
                      <div class="col">
                           <div id="imageInfo" class="container"></div>
-
                      </div>
                  </div>
              </div>

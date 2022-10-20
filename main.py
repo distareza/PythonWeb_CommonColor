@@ -22,7 +22,7 @@ def upload():
     uploadedfile = request.files["upload-file"]
     print(f"Uploaded file : {uploadedfile}" )
 
-    # https://blog.furas.pl/python-how-to-display-image-without-saving-in-file-using-bytesio-and-base64-string-in-url-gb.html#:~:text=To%20display%20image%20in%20web,it%20without%20saving%20on%20disk.&text=And%20later%20you%20can%20use,read()%20or%20img.
+    # https://blog.furas.pl/python-how-to-display-image-without-saving-in-file-using-bytesio-and-base64-string-in-url-gb.html
     # read to pillow
     global img_obj, img_arr
     image = Image.open(uploadedfile)
@@ -63,11 +63,13 @@ def showDetail():
     arr = [ str(x[0]) + '-' + str(x[1]) + '-' + str(x[2]) for x in colour_arr ]
     df = pd.Series(arr).to_frame().rename(columns={0: "Colours"})
     print(f"colour count : {df.count()}")
-    colour_group = df.value_counts().head(5)
+    colour_group = df.value_counts().head(10)
     colour_count = int(df.count())
     group_color = []
     for idx, group in enumerate(colour_group.index.tolist()):
-        group_color.append( [str(group[0]), int(colour_group[idx]), float(colour_group[idx] * 100 / colour_count )] )
+        arr_color_code = str(group[0]).split("-")
+        color_code = f"#{int(arr_color_code[0]):02X}{int(arr_color_code[1]):02X}{int(arr_color_code[2]):02X}"
+        group_color.append( [str(group[0]), color_code, float(colour_group[idx] * 100 / colour_count ), int(colour_group[idx])] )
 
     json = jsonify(
          color_count= colour_count,
