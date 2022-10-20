@@ -47,7 +47,7 @@
                 success: function (data) {
                     console.log("success upload file");
                     $("#divDialog").modal("hide");
-                    $("#uploadedImage").attr("src", "{{url_for('showImage')}}");
+                    $("#uploadedImage").attr("src", "{{url_for('showImage')}}?" + new Date());
                     $(".figure").show();
                     showImageDetailInfo();
                 },
@@ -69,11 +69,19 @@
                 if (!data || !data.group_color) {
                     return;
                 }
-                var listColor = $("<UL>");
+                var listColor = $("<UL>").css( {"list-style-type": "none" } );
                 $(data.group_color).each(function( index, item ) {
-                    var span_color_text = $("<SPAN>").text("Color : " + item[0]);
-                    var span_color_count = $("<SPAN>").text(" : " + item[2] + "%");
-                    $(listColor).append( $("<LI>").append(span_color_text).append(span_color_count) );
+                    var color_pallet = $("<img>").addClass("col").css({ "width":"20px" }, { "height" : "10px" }).attr("src", "color/" + item[0] );
+                    var span_color_text = $("<SPAN>").addClass("col").text("Color : " + item[0]);
+                    var span_color_count = $("<SPAN>").addClass("col").text(item[2] + "%");
+                    $(listColor).append( $("<LI>").append(
+                        $("<div>").addClass("container").append(
+                            $("<div>").addClass("row")
+                                .append(color_pallet)
+                                .append(span_color_text)
+                                .append(span_color_count)
+                        )
+                    ));
                 });
                 $("#imageInfo").append(listColor);
             },
@@ -122,11 +130,20 @@
       <div class="row gx-5">
         <div class="col">
          <div class="p-3 border bg-light">
-            <figure class="figure">
-                <img id="uploadedImage" style="max-height: 300px; max-width: 300px" class="figure-img img-fluid rounded" />
-                <figcaption class="figure-caption">A caption for the above image.</figcaption>
-            </figure>
-             <div id="imageInfo"></div>
+             <div class="container">
+                 <div class="row">
+                     <div class="col">
+                        <figure class="figure align-middle">
+                            <img id="uploadedImage" style="max-height: 300px; max-width: 300px" class="figure-img img-fluid rounded" />
+                            <figcaption class="figure-caption">A caption for the above image.</figcaption>
+                        </figure>
+                     </div>
+                     <div class="col">
+                          <div id="imageInfo" class="container"></div>
+
+                     </div>
+                 </div>
+             </div>
          </div>
         </div>
       </div>
